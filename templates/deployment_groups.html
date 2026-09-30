@@ -1,0 +1,325 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deployment groups · Digital Signage</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f7fb;color:#172033;font:14px/1.5 Inter,Segoe UI,Arial,sans-serif}
+.shell{max-width:1120px;margin:0 auto;padding:28px 22px 48px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px}
+.eyebrow{color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}
+h1,h2,h3,p{margin-top:0}h1{font-size:28px;letter-spacing:-.03em;margin-bottom:4px}h2{font-size:18px;margin-bottom:6px}h3{font-size:16px;margin:0}
+.muted{color:#718096}.small{font-size:12px}
+.nav-link{color:#2563eb;text-decoration:none;font-weight:700;margin-right:14px}
+.logout{color:#526176;text-decoration:none;border:1px solid #dbe2ec;border-radius:9px;padding:9px 13px;background:#fff;font-weight:600}
+.panel{background:#fff;border:1px solid #e5eaf2;border-radius:14px;padding:20px;box-shadow:0 5px 18px #24324a08;margin-bottom:18px}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+button{font:inherit;border:0;border-radius:8px;padding:9px 13px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer}
+button:hover{background:#1d4ed8}button:disabled{opacity:.45;cursor:not-allowed}
+button.secondary{background:#eaf1ff;color:#1d4ed8}button.secondary:hover{background:#dbe7ff}
+button.danger{background:#fff1f2;color:#be123c}button.danger:hover{background:#ffe4e6}
+button.ghost{background:transparent;color:#526176;padding:6px 8px}button.ghost:hover{background:#eef3f9}
+select,input[type=text],input[type=search]{font:inherit;width:100%;border:1px solid #d7deea;border-radius:8px;padding:9px 10px;background:#fbfcfe;color:#172033}
+.inline-form{display:inline}
+
+/* Flash messages */
+.flash{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:12px;font-weight:600}
+.flash.success{background:#ecfdf3;border:1px solid #a7f3c4;color:#166534}
+.flash.error{background:#fff1f2;border:1px solid #fecdd3;color:#9f1239}
+.flash button{background:transparent;color:inherit;padding:0 4px;font-size:18px;line-height:1}
+
+/* Summary strip */
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.stat{background:#fff;border:1px solid #e5eaf2;border-radius:12px;padding:14px 16px}
+.stat strong{display:block;font-size:22px}.stat span{color:#718096;font-size:12px}
+
+/* Server group cards */
+.group-card{border:1px solid #dbe3ef;border-radius:13px;overflow:hidden;margin-bottom:16px;background:#fff;scroll-margin-top:16px}
+.group-card:target{border-color:#2563eb;box-shadow:0 0 0 3px #2563eb22}
+.group-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:#f7faff;border-bottom:1px solid #e5eaf2;flex-wrap:wrap}
+.group-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;background:#eef2f7;color:#526176}
+.pill.live{background:#ecfdf3;color:#15803d}.pill.live:before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e}
+.pill.ok{background:#ecfdf3;color:#15803d}.pill.warn{background:#fff8e6;color:#92400e}
+.group-actions{display:flex;gap:8px;flex-wrap:wrap}
+.group-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:0}
+.group-body>section{padding:14px 16px}.group-body>section+section{border-left:1px solid #edf1f6}
+.label{display:block;color:#536176;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+.now-strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.now-item{flex:none;width:120px}
+.now-item img,.now-item .fallback{width:120px;height:70px;display:block;object-fit:cover;border-radius:8px;background:#edf2f7}
+.now-item .fallback{display:grid;place-items:center;color:#94a3b8;font-size:12px;border:1px dashed #d7deea}
+.now-item strong{display:block;margin-top:5px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now-item span{display:block;color:#718096;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Queue */
+.queue{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px}
+.queue-item{display:grid;grid-template-columns:30px 76px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px;border:1px solid #e5eaf2;border-radius:10px;background:#fbfcfe}
+.queue-item.first{border-color:#bcd0fb;background:#f4f8ff}
+.queue-item.blocked{border-color:#f6d98b;background:#fffbeb}
+.position{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#e2e8f0;color:#334155;font-weight:800;font-size:13px}
+.queue-item.first .position{background:#2563eb;color:#fff}
+.thumbs{display:grid;grid-template-columns:1fr 1fr;gap:2px;width:76px;height:46px;border-radius:6px;overflow:hidden;background:#edf2f7}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs.single{grid-template-columns:1fr}
+.queue-info{min-width:0}
+.queue-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.queue-info .meta{color:#718096;font-size:12px}
+.queue-controls{display:flex;gap:2px;align-items:center}
+.queue-controls button{min-width:30px;font-size:15px;line-height:1}
+.queue-controls .remove{color:#be123c}.queue-controls .remove:hover{background:#fff1f2}
+.queue-empty{color:#718096;background:#f8fafc;border:1px dashed #d7deea;border-radius:9px;padding:16px;text-align:center;margin-bottom:12px}
+.add-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.queue-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+/* Setup */
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.stack{display:grid;gap:8px}
+.stack label{color:#536176;font-size:12px;font-weight:700}
+.server-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;max-height:220px;overflow:auto;padding:10px;border:1px solid #e5eaf2;border-radius:9px;background:#fbfcfe}
+.server-list label{display:flex;gap:7px;align-items:center;color:#536176;font-weight:600;font-size:13px}
+.chip-list{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:7px 8px 7px 12px;border:1px solid #e5eaf2;border-radius:999px;background:#fbfcfe;font-size:13px}
+.chip span{color:#718096;font-size:12px}
+.chip button{padding:3px 8px;font-size:12px;border-radius:999px}
+.mapping{width:100%;border-collapse:collapse}
+.mapping th{text-align:left;color:#718096;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.mapping td,.mapping th{padding:10px;border-bottom:1px solid #edf1f6}
+.mapping tr:last-child td{border-bottom:0}
+.empty{color:#718096;background:#f8fafc;border:1px dashed #d7deea;border-radius:9px;padding:18px;text-align:center}
+.help{margin:0;padding-left:18px;color:#526176}.help li{margin-bottom:4px}
+
+@media(max-width:860px){.group-body{grid-template-columns:1fr}.group-body>section+section{border-left:0;border-top:1px solid #edf1f6}}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}h1{font-size:23px}.summary{grid-template-columns:1fr 1fr 1fr;gap:8px}.stat{padding:10px}.stat strong{font-size:18px}}
+@media(max-width:520px){.shell{padding:20px 14px 36px}.queue-item{grid-template-columns:28px minmax(0,1fr);}.queue-item .thumbs{display:none}.queue-controls{grid-column:1 / -1;justify-content:flex-end}.add-row{grid-template-columns:1fr 1fr}.add-row select{grid-column:1 / -1}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar">
+  <div>
+    <p class="eyebrow">Digital signage</p>
+    <h1>Deployment groups</h1>
+    <p class="muted">Play image groups on server groups now, or line them up in a queue to play next.</p>
+  </div>
+  <div>
+    <a class="nav-link" href="{{url_for('dashboard')}}">Dashboard</a>
+    <a class="nav-link" href="{{url_for('groups')}}">Image groups</a>
+    <a class="logout" href="{{url_for('logout')}}">Sign out</a>
+  </div>
+</header>
+
+{% for category, message in get_flashed_messages(with_categories=true) %}
+<div class="flash {{'error' if category == 'error' else 'success'}}" role="{{'alert' if category == 'error' else 'status'}}">
+  <span>{{message}}</span>
+  <button type="button" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button>
+</div>
+{% endfor %}
+
+{% set queued_total = namespace(n=0) %}{% for group in server_groups %}{% set queued_total.n = queued_total.n + group.queue|length %}{% endfor %}
+<div class="summary">
+  <div class="stat"><strong>{{server_groups|length}}</strong><span>Server groups</span></div>
+  <div class="stat"><strong>{{image_groups|length}}</strong><span>Image groups</span></div>
+  <div class="stat"><strong>{{queued_total.n}}</strong><span>Items queued</span></div>
+</div>
+
+<section class="panel">
+  <div class="section-head">
+    <div>
+      <h2>Server groups</h2>
+      <p class="muted" style="margin:0">Images are paired by position: the first server (lowest ID) shows the first image, and so on.</p>
+    </div>
+    <a class="nav-link" href="#setup">+ New server group</a>
+  </div>
+
+  {% for group in server_groups %}
+  {% set server_count = group.screens|length %}
+  {% set next_item = group.queue[0] if group.queue else None %}
+  <article class="group-card" id="group-{{group.name}}">
+    <header class="group-head">
+      <div class="group-title">
+        <h3>{{group.name}}</h3>
+        <span class="pill">{{server_count}} server{{'' if server_count == 1 else 's'}}</span>
+        {% if group.active_group %}<span class="pill live">Playing {{group.active_group}}</span>{% else %}<span class="pill">Nothing deployed</span>{% endif %}
+      </div>
+      <div class="group-actions">
+        <form class="inline-form" method="post" action="{{url_for('deploy_next_image_group')}}">
+          <input type="hidden" name="server_group" value="{{group.name}}">
+          <button type="submit"
+            {% if not next_item %}disabled title="Add an image group to the queue first"
+            {% elif not next_item.ready %}disabled title="The next item does not match this group's size"
+            {% else %}title="Play {{next_item.image_group}} now and remove it from the queue"{% endif %}>
+            ▶ Play next{% if next_item %}: {{next_item.image_group}}{% endif %}
+          </button>
+        </form>
+      </div>
+    </header>
+
+    <div class="group-body">
+      <section>
+        <span class="label">Now playing</span>
+        <div class="now-strip">
+          {% for screen in group.screens %}{% set image = screen.current_image %}
+          <div class="now-item">
+            {% if image.filename %}<img src="{{url_for('uploaded_file', filename=image.filename)}}" alt="{{image.display_name}}" loading="lazy">{% else %}<div class="fallback">Fallback</div>{% endif %}
+            <strong>Screen #{{screen.screen_id}}</strong>
+            <span title="{{image.display_name or 'Fallback'}}">{{image.display_name or 'Fallback image'}}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section>
+        <span class="label">Queue · {{group.queue|length}} of {{max_queue_items}}</span>
+        {% if group.queue %}
+        <ol class="queue">
+          {% for item in group.queue %}
+          <li class="queue-item{{' first' if loop.first}}{{' blocked' if not item.ready}}">
+            <span class="position" title="Position {{loop.index}}">{{loop.index}}</span>
+            <div class="thumbs{{' single' if item.thumbnails|length == 1}}">
+              {% for filename in item.thumbnails %}<img src="{{url_for('uploaded_file', filename=filename)}}" alt="" loading="lazy">{% endfor %}
+            </div>
+            <div class="queue-info">
+              <strong title="{{item.image_group}}">{{item.image_group}}</strong>
+              <div class="meta">
+                {% if loop.first %}Up next · {% endif %}
+                {% if item.ready %}<span class="pill ok" style="padding:1px 7px">{{item.image_count}} images · ready</span>
+                {% elif item.image_count == 0 %}<span class="pill warn" style="padding:1px 7px">Image group is empty</span>
+                {% else %}<span class="pill warn" style="padding:1px 7px">{{item.image_count}} images for {{server_count}} servers</span>{% endif %}
+              </div>
+            </div>
+            <div class="queue-controls">
+              {% for direction, symbol, text, disabled in [
+                ('top', '⤒', 'Move to top', loop.first),
+                ('up', '↑', 'Move up', loop.first),
+                ('down', '↓', 'Move down', loop.last),
+                ('bottom', '⤓', 'Move to bottom', loop.last),
+              ] %}
+              <form class="inline-form" method="post" action="{{url_for('move_queue_item')}}">
+                <input type="hidden" name="item_id" value="{{item.id}}">
+                <input type="hidden" name="direction" value="{{direction}}">
+                <button class="ghost" type="submit" title="{{text}}" aria-label="{{text}}: {{item.image_group}}" {% if disabled %}disabled{% endif %}>{{symbol}}</button>
+              </form>
+              {% endfor %}
+              <form class="inline-form" method="post" action="{{url_for('delete_queue_item')}}">
+                <input type="hidden" name="item_id" value="{{item.id}}">
+                <button class="ghost remove" type="submit" title="Remove from queue" aria-label="Remove {{item.image_group}} from queue">✕</button>
+              </form>
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+        {% else %}
+        <div class="queue-empty">The queue is empty. Add an image group below.</div>
+        {% endif %}
+
+        <form method="post" action="{{url_for('queue_image_group')}}" class="add-row">
+          <input type="hidden" name="server_group" value="{{group.name}}">
+          <select name="image_group" required aria-label="Image group for {{group.name}}">
+            <option value="">Choose an image group…</option>
+            {% for image_group in image_groups %}{% set fits = image_group.images|length == server_count %}
+            <option value="{{image_group.name}}" {% if not fits %}disabled{% endif %}>{{image_group.name}} · {{image_group.images|length}} image{{'' if image_group.images|length == 1 else 's'}}{% if not fits %} (needs {{server_count}}){% endif %}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="secondary" {% if group.queue|length >= max_queue_items %}disabled title="Queue is full"{% endif %}>+ Add to queue</button>
+          <button type="submit" formaction="{{url_for('deploy_image_group')}}" title="Play this image group now without changing the queue">▶ Play now</button>
+        </form>
+
+        {% if group.queue %}
+        <div class="queue-footer">
+          <span class="muted small">Play next removes item 1 from the queue.</span>
+          <form class="inline-form" method="post" action="{{url_for('clear_queue')}}" onsubmit="return confirm('Remove all {{group.queue|length}} item(s) from the {{group.name}} queue?');">
+            <input type="hidden" name="server_group" value="{{group.name}}">
+            <button type="submit" class="danger">Clear queue</button>
+          </form>
+        </div>
+        {% endif %}
+      </section>
+    </div>
+  </article>
+  {% else %}
+  <div class="empty">No server groups yet. <a href="#setup">Create one below</a> to start deploying image groups.</div>
+  {% endfor %}
+</section>
+
+{% if selected_server_group and selected_image_group %}
+<section class="panel">
+  <h2>Pairing: {{selected_server_group}} ← {{selected_image_group}}</h2>
+  {% if grouped_data and selected_servers|length == selected_images|length %}
+  <table class="mapping"><thead><tr><th>Position</th><th>Server</th><th>Image</th></tr></thead><tbody>
+  {% for server, image in grouped_data %}<tr><td>{{loop.index}}</td><td>Screen #{{server.screen_id}}</td><td>{{image.display_name}}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}
+  <div class="empty">These groups don't match: {{selected_servers|length}} server{{'' if selected_servers|length == 1 else 's'}} and {{selected_images|length}} image{{'' if selected_images|length == 1 else 's'}}.</div>
+  {% endif %}
+</section>
+{% endif %}
+
+<div class="layout" id="setup">
+  <section class="panel">
+    <h2>Create or update a server group</h2>
+    <p class="muted">Pick screens and give them a group name. Screens already in another group are moved.</p>
+    <form method="post" action="{{url_for('group_servers')}}" class="stack">
+      <label for="server-group-name">Server group name</label>
+      <input type="text" id="server-group-name" name="group_name" maxlength="10" pattern="[A-Za-z0-9]{1,10}" placeholder="e.g. Line1 (letters and numbers, max 10)" required>
+      <label for="server-search">Screens</label>
+      <input id="server-search" type="search" placeholder="Filter by screen ID or group…">
+      <div class="server-list">
+        {% for screen in screens %}
+        <label data-server-search="screen {{screen.screen_id}} {{screen.group_name or ''}}"><input type="checkbox" name="screen_ids" value="{{screen.screen_id}}">#{{screen.screen_id}}{% if screen.group_name %} <span class="muted small">· {{screen.group_name}}</span>{% endif %}</label>
+        {% else %}<span class="muted">No screens registered yet.</span>{% endfor %}
+      </div>
+      <div><button type="submit">Save server group</button> <span id="selected-count" class="muted small"></span></div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Manage groups</h2>
+    <p class="muted" style="margin-bottom:8px">Deleting a server group keeps its screens and current content, but clears its queue.</p>
+    <div class="chip-list" style="margin-bottom:18px">
+      {% for group in server_groups %}
+      <span class="chip"><strong>{{group.name}}</strong><span>{{group.screens|length}} server{{'' if group.screens|length == 1 else 's'}}</span>
+        <form class="inline-form" method="post" action="{{url_for('delete_server_group')}}" onsubmit="return confirm('Delete server group {{group.name}}? Screens and content stay; its queue is cleared.');">
+          <input type="hidden" name="group_name" value="{{group.name}}"><button type="submit" class="danger">Delete</button>
+        </form>
+      </span>
+      {% else %}<span class="muted">No server groups yet.</span>{% endfor %}
+    </div>
+    <h3 style="margin-bottom:8px">Image groups</h3>
+    <div class="chip-list" style="margin-bottom:12px">
+      {% for image_group in image_groups %}<span class="chip" style="padding-right:12px"><strong>{{image_group.name}}</strong><span>{{image_group.images|length}} image{{'' if image_group.images|length == 1 else 's'}}</span></span>
+      {% else %}<span class="muted">No image groups yet.</span>{% endfor %}
+    </div>
+    <a class="nav-link" href="{{url_for('groups')}}">Open image library →</a>
+  </section>
+</div>
+
+<section class="panel">
+  <h2>How the queue works</h2>
+  <ol class="help">
+    <li>Each server group has its own queue of up to {{max_queue_items}} image groups.</li>
+    <li>An image group can only be queued when its image count matches the number of servers in the group.</li>
+    <li><strong>Play next</strong> plays item 1 and removes it from the queue. <strong>Play now</strong> plays a group immediately and leaves the queue unchanged.</li>
+    <li>Use the arrows to reorder items, or ✕ to remove one. Renaming or deleting an image group updates the queues automatically.</li>
+  </ol>
+</section>
+</main>
+<script>
+const serverSearch = document.getElementById("server-search");
+const serverRows = document.querySelectorAll("[data-server-search]");
+serverSearch && serverSearch.addEventListener("input", () => {
+  const query = serverSearch.value.trim().toLowerCase();
+  serverRows.forEach((row) => {
+    row.hidden = query !== "" && !row.dataset.serverSearch.toLowerCase().includes(query);
+  });
+});
+const selectedCount = document.getElementById("selected-count");
+document.querySelectorAll('.server-list input[type=checkbox]').forEach((box) => box.addEventListener("change", () => {
+  const n = document.querySelectorAll('.server-list input:checked').length;
+  selectedCount.textContent = n ? `${n} selected` : "";
+}));
+document.querySelectorAll(".flash.success").forEach((el) => setTimeout(() => el.remove(), 6000));
+</script>
+</body>
+</html>

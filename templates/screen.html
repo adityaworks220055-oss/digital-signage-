@@ -1,0 +1,109 @@
+
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box}html,body{margin:0;background:#0b1020;width:100%;height:100%;overflow:hidden}body{display:grid;place-items:center}img{width:100%;height:100%;object-fit:contain}.screen-label{position:fixed;left:16px;bottom:14px;color:#fff9;background:#0b1020cc;border:1px solid #fff2;border-radius:999px;padding:5px 10px;font:12px Segoe UI,Arial,sans-serif;opacity:0;transition:opacity .2s}.screen-label:hover{opacity:1}.controls{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;padding:8px;background:#0b1020dd;border:1px solid #fff3;border-radius:12px}.controls button{border:0;border-radius:7px;padding:8px 12px;background:#fff;color:#172033;font-weight:700;cursor:pointer}.controls button:disabled{opacity:.4;cursor:not-allowed}.controls button.done{background:#22c55e;color:#fff}
+</style>
+</head>
+<body>
+
+<img id="img" src="{{image_url}}" alt="Digital signage">
+<div class="screen-label">Screen {{sid}}</div>
+{% if playlist|length > 1 %}<div class="controls"><button id="previous" type="button">Previous</button><button id="next" type="button">Next</button><button id="done" class="done" type="button" hidden>Mark as done</button></div>{% endif %}
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
+<script>
+
+const screenId = {{sid}};
+
+const socket = io({
+    transports: ["polling"],
+    upgrade: false,
+    forceNew: true,
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+});
+
+const img = document.getElementById("img");
+const playlist = {{ playlist|tojson }};
+let currentIndex = {{ current_index }};
+const previous = document.getElementById("previous");
+const next = document.getElementById("next");
+const done = document.getElementById("done");
+
+const updateControls = () => {
+    if (!playlist.length) return;
+    previous.disabled = currentIndex === 0;
+    next.hidden = currentIndex === playlist.length - 1;
+    done.hidden = currentIndex !== playlist.length - 1;
+};
+
+const navigate = direction => {
+    socket.emit("navigate_image", {screen_id: screenId, direction});
+};
+
+if (previous) previous.addEventListener("click", () => navigate("previous"));
+if (next) next.addEventListener("click", () => navigate("next"));
+if (done) done.addEventListener("click", () => socket.emit("mark_done", {screen_id: screenId}));
+
+socket.on("connect", () => {
+
+    socket.emit(
+        "register",
+        {
+            screen_id: screenId
+        }
+    );
+
+});
+
+updateControls();
+
+socket.on(
+    "image_update",
+    data => {
+
+        if(data.url){
+            img.src =
+                data.url +
+                "?t=" +
+                Date.now();
+            if (data.index !== undefined) {
+                currentIndex = data.index;
+                updateControls();
+            }
+        }
+
+    }
+);
+
+setInterval(() => {
+
+    socket.emit(
+        "heartbeat",
+        {
+            screen_id: screenId
+        }
+    );
+
+}, 15000);
+
+const refreshImage = async () => {
+    const response = await fetch(`/api/screen/${screenId}`);
+    const data = await response.json();
+    const currentUrl = img.src.split("?")[0];
+
+    if (data.url && data.url !== currentUrl) {
+        img.src = data.url + "?t=" + Date.now();
+    }
+};
+
+setInterval(refreshImage, 5000);
+
+</script>
+
+</body>
+</html>

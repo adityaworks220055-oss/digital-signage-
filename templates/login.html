@@ -1,0 +1,37 @@
+
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signage Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#f4f7fb;color:#172033;font:15px/1.5 Inter,Segoe UI,Arial,sans-serif;display:grid;place-items:center;padding:24px}
+.login-card{width:min(100%,390px);background:#fff;border:1px solid #e5eaf2;border-radius:18px;padding:36px;box-shadow:0 16px 45px #24324a14}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#2563eb;color:#fff;font-weight:800;font-size:20px}
+h1{font-size:22px;line-height:1.2;margin:0}
+.muted{color:#68758a;margin:5px 0 0}
+label{display:block;color:#536176;font-size:13px;font-weight:600;margin:18px 0 6px}
+input,button{font:inherit;width:100%;border-radius:9px;padding:11px 13px}
+input{border:1px solid #d7deea;background:#fbfcfe}
+input:focus{outline:3px solid #2563eb22;border-color:#2563eb}
+button{border:0;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;margin-top:22px}
+button:hover{background:#1d4ed8}
+.error{background:#fff1f2;border:1px solid #fecdd3;color:#be123c;border-radius:8px;padding:10px 12px;margin-top:18px}
+</style>
+</head>
+<body>
+<form class="login-card" method="post">
+<div class="brand"><div class="brand-mark">S</div><div><h1>Signage Admin</h1><p class="muted">Manage your screens in one place</p></div></div>
+<label for="username">Username</label>
+<input id="username" name="username" placeholder="Enter your username" autocomplete="username" required>
+<label for="password">Password</label>
+<input id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+<button>Sign in</button>
+{% for m in get_flashed_messages() %}
+<div class="error">{{m}}</div>
+{% endfor %}
+</form>
+</body>
+</html>

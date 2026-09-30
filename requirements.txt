@@ -1,0 +1,6 @@
+Flask
+Flask-SocketIO
+pandas
+openpyxl
+Werkzeug
+waitress

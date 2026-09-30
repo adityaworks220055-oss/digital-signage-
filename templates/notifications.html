@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications · Digital Signage</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#172033;font:14px/1.5 Inter,Segoe UI,Arial,sans-serif}.shell{max-width:900px;margin:0 auto;padding:28px 22px 48px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.eyebrow{color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}h1,h2,p{margin-top:0}h1{font-size:28px;letter-spacing:-.03em;margin-bottom:4px}.muted{color:#718096}.nav-link{color:#2563eb;text-decoration:none;font-weight:700;margin-right:14px}.logout{color:#526176;text-decoration:none;border:1px solid #dbe2ec;border-radius:9px;padding:9px 13px;background:#fff;font-weight:600}.panel{background:#fff;border:1px solid #e5eaf2;border-radius:14px;padding:20px;box-shadow:0 5px 18px #24324a08}.search-form{display:flex;gap:7px;margin-bottom:18px}.search-form input{flex:1;border:1px solid #d7deea;border-radius:8px;padding:9px 11px}.search-form button{border:0;border-radius:8px;padding:9px 12px;background:#2563eb;color:#fff;font-weight:700}.notification{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #edf1f6;padding:14px 0}.notification:last-child{border-bottom:0}.notification strong{display:block}.notification time{color:#718096;font-size:12px}.delete-notification{border:0;border-radius:7px;padding:7px 10px;background:#fff1f2;color:#be123c;font:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.delete-notification:hover{background:#ffe4e6}.pagination{display:flex;justify-content:center;gap:6px;margin-top:16px}.pagination a{color:#526176;text-decoration:none;border:1px solid #dbe2ec;border-radius:7px;padding:6px 10px;background:#fff;font-size:12px}.pagination a.active{color:#fff;background:#2563eb;border-color:#2563eb}.empty{color:#718096;background:#f8fafc;border:1px dashed #d7deea;border-radius:9px;padding:18px;text-align:center}@media(max-width:520px){.shell{padding:20px 14px}.topbar{align-items:flex-start;flex-direction:column}h1{font-size:23px}.notification{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar"><div><p class="eyebrow">Digital signage</p><h1>Notifications</h1><p class="muted">Updates from screens and playback activity.</p></div><div><a class="nav-link" href="{{url_for('dashboard')}}">Dashboard</a><a class="logout" href="{{url_for('logout')}}">Sign out</a></div></header>
+<section class="panel"><form class="search-form" method="get"><input type="search" name="q" value="{{query}}" placeholder="Search notifications..." aria-label="Search notifications"><button type="submit">Search</button></form>
+{% for notification in notifications %}<article class="notification"><div><strong>{{notification.details or notification.action}}</strong><time>{{notification.at}}</time></div><form method="post" action="{{url_for('delete_notification', notification_index=notification.row_index)}}"><button class="delete-notification" type="submit">Delete</button></form></article>{% else %}<div class="empty">No notifications match this search.</div>{% endfor %}
+{% if page_count > 1 %}<nav class="pagination" aria-label="Notification pages">{% for page_number in range(1, page_count + 1) %}<a class="{{'active' if page_number == page}}" href="{{url_for('notifications', page=page_number, q=query)}}">{{page_number}}</a>{% endfor %}</nav>{% endif %}
+</section>
+</main>
+</body>
+</html>

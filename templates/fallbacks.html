@@ -1,0 +1,21 @@
+
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fallback screens · Digital Signage</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#172033;font:14px/1.5 Inter,Segoe UI,Arial,sans-serif}.shell{max-width:900px;margin:0 auto;padding:28px 22px 48px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:28px}.eyebrow{color:#2563eb;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:0 0 4px}h1,h2,p{margin-top:0}h1{font-size:28px;letter-spacing:-.03em;margin-bottom:4px}h2{font-size:18px;margin-bottom:8px}.muted{color:#718096}.nav-link{color:#2563eb;text-decoration:none;font-weight:700;margin-right:14px}.logout{color:#526176;text-decoration:none;border:1px solid #dbe2ec;border-radius:9px;padding:9px 13px;background:#fff;font-weight:600}.panel{background:#fff;border:1px solid #e5eaf2;border-radius:14px;padding:20px;box-shadow:0 5px 18px #24324a08}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}.search-form{display:flex;gap:7px}.search-form input{border:1px solid #d7deea;border-radius:8px;padding:8px 10px}.search-form button{border:0;border-radius:8px;padding:8px 10px;background:#2563eb;color:#fff;font-weight:700}.screen-list{display:grid;gap:8px;margin:18px 0}.screen-option{display:flex;align-items:center;gap:12px;border:1px solid #e5eaf2;border-radius:9px;padding:12px;background:#fbfcfe}.screen-option:hover{border-color:#2563eb}.screen-option input{width:17px;height:17px}.screen-name{font-weight:700}.screen-image{color:#718096;font-size:12px;margin-left:auto}.button{border:0;border-radius:8px;background:#2563eb;color:#fff;font:inherit;font-weight:700;padding:10px 14px;cursor:pointer}.pagination{display:flex;justify-content:center;gap:6px;margin-top:16px}.pagination a{color:#526176;text-decoration:none;border:1px solid #dbe2ec;border-radius:7px;padding:6px 10px;background:#fff;font-size:12px}.pagination a.active{color:#fff;background:#2563eb;border-color:#2563eb}.empty{color:#718096;background:#f8fafc;border:1px dashed #d7deea;border-radius:9px;padding:18px;text-align:center}@media(max-width:600px){.shell{padding:20px 14px}.topbar{align-items:flex-start;flex-direction:column}h1{font-size:23px}.section-heading{align-items:flex-start;flex-direction:column}.search-form{width:100%}.search-form input{flex:1}.screen-option{align-items:flex-start;flex-wrap:wrap}.screen-image{margin-left:29px;width:100%}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="topbar"><div><p class="eyebrow">Digital signage</p><h1>Fallback screens</h1><p class="muted">Choose which servers should show the fallback image.</p></div><div><a class="nav-link" href="{{url_for('dashboard')}}">Dashboard</a><a class="logout" href="{{url_for('logout')}}">Sign out</a></div></header>
+<section class="panel"><div class="section-heading"><div><h2>Select servers</h2><p class="muted">Selected servers will immediately switch to the fallback image.</p></div><form class="search-form" method="get" action="{{url_for('fallbacks')}}"><input type="search" name="q" value="{{query}}" placeholder="Search servers..." aria-label="Search servers"><button type="submit">Search</button></form></div>
+<form method="post" action="{{url_for('set_fallbacks')}}"><div class="screen-list">
+{% for s in screens %}<label class="screen-option"><input type="checkbox" name="screen_ids" value="{{s.screen_id}}"><span class="screen-name">Server #{{s.screen_id}}</span><span class="screen-image">{{s.filename or 'Already showing fallback'}}</span></label>{% else %}<div class="empty">No servers have connected yet.</div>{% endfor %}
+</div>{% if screens %}<button class="button" type="submit">Show fallback on selected servers</button>{% endif %}</form>{% if page_count > 1 %}<nav class="pagination" aria-label="Fallback server pages">{% for page_number in range(1, page_count + 1) %}<a class="{{'active' if page_number == page else ''}}" href="{{url_for('fallbacks', page=page_number, q=query)}}">{{page_number}}</a>{% endfor %}</nav>{% endif %}
+</section>
+</main>
+</body>
+</html>
